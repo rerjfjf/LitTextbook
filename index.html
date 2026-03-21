@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1c1208">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LitTextbook">
+<link rel="manifest" href="manifest.json">
+<title>LitTextbook — Русская литература</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper:  #f2e8d5;
+  --paper2: #e8d9bc;
+  --paper3: #ddc9a3;
+  --ink:    #1c1208;
+  --ink2:   #3d2b10;
+  --gold:   #a67c3a;
+  --gold2:  #c9973f;
+  --red:    #7a1f1f;
+  --muted:  #7a6245;
+  --shadow: rgba(28,18,8,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body {
+  background: #2a1a08;
+  color: var(--ink);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 18px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+/* ── BOOK COVER ── */
+.book-cover {
+  background: var(--paper);
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+  box-shadow:
+    6px 6px 0 #1a0d04,
+    8px 8px 20px rgba(0,0,0,.5);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* Book spine shadow on left */
+.book-cover::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; bottom:0;
+  width:18px;
+  background: linear-gradient(to right, rgba(0,0,0,.18), transparent);
+  pointer-events:none;
+  z-index:1;
+}
+
+.cover-inner {
+  border: 2px solid var(--gold);
+  margin: 1.8rem;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.cover-inner::before { content:'✦'; position:absolute; top:.5rem; left:.5rem; color:var(--gold); font-size:1rem; }
+.cover-inner::after  { content:'✦'; position:absolute; bottom:.5rem; right:.5rem; color:var(--gold); font-size:1rem; }
+
+.cover-label {
+  font-size:.72rem; letter-spacing:.25em;
+  text-transform:uppercase; color:var(--muted);
+  margin-bottom:1.2rem;
+}
+
+.cover-title {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2rem,7vw,3.4rem);
+  font-weight:900; line-height:1.05;
+  margin-bottom:.4rem;
+}
+
+.cover-title em {
+  font-style:italic; color:var(--gold);
+  display:block; font-size:.65em;
+  font-weight:400; margin-bottom:.2rem;
+}
+
+.cover-subtitle {
+  font-style:italic; color:var(--muted);
+  font-size:.95rem; margin-bottom:.3rem;
+}
+
+.ornament {
+  color:var(--gold); letter-spacing:.4em;
+  font-size:.9rem; margin:1.2rem 0; opacity:.7;
+}
+
+.cover-desc {
+  font-size:.88rem; color:var(--ink2);
+  line-height:1.7; margin-bottom:1.5rem;
+  font-style:italic;
+}
+
+.cover-toc {
+  text-align:left; margin-bottom:1.8rem;
+  border-top:1px solid rgba(166,124,58,.25);
+  padding-top:1rem;
+}
+
+.cover-toc h3 {
+  font-family:'Playfair Display',serif;
+  font-size:.8rem; letter-spacing:.15em;
+  text-transform:uppercase; color:var(--muted);
+  margin-bottom:.7rem;
+}
+
+.toc-item {
+  display:flex; justify-content:space-between;
+  align-items:baseline;
+  padding:.25rem 0;
+  border-bottom:1px dotted rgba(166,124,58,.2);
+  font-size:.85rem;
+}
+.toc-item span:first-child { color:var(--ink2); }
+.toc-item span:last-child  { color:var(--muted); font-style:italic; font-size:.78rem; }
+
+.btn-open {
+  width:100%; padding:1rem;
+  background:var(--ink);
+  color:var(--paper);
+  border:none;
+  font-family:'Playfair Display',serif;
+  font-size:1.05rem; letter-spacing:.06em;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative; overflow:hidden;
+}
+.btn-open::after {
+  content:'→';
+  position:absolute; right:1.5rem; top:50%;
+  transform:translateY(-50%);
+  transition:right .2s;
+}
+.btn-open:hover { background:var(--ink2); }
+.btn-open:hover::after { right:1.2rem; }
+
+.cover-footer {
+  padding:.75rem 1.8rem;
+  border-top:1px solid rgba(166,124,58,.2);
+  display:flex; justify-content:space-between;
+  align-items:center;
+  font-size:.72rem; color:var(--muted);
+}
+
+/* Progress bar */
+.progress-line {
+  height:2px;
+  background:var(--paper3);
+  margin:0 1.8rem;
+}
+.progress-fill {
+  height:100%;
+  background:var(--gold);
+  transition:width .5s ease;
+}
+
+@keyframes fadeUp {
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.book-cover { animation:fadeUp .6s ease both; }
+</style>
+</head>
+<body>
+
+<div class="book-cover">
+  <div class="cover-inner">
+    <div class="cover-label">Учебник · 10–11 класс</div>
+    <div class="cover-title">
+      <em>Русская</em>
+      Литература
+    </div>
+    <div class="cover-subtitle">Классическая программа</div>
+    <div class="ornament">— ✦ —</div>
+    <p class="cover-desc">
+      Читайте краткие содержания произведений,<br>
+      выполняйте творческие задания.<br>
+      Каждый ответ проверяет искусственный интеллект.
+    </p>
+
+    <div class="cover-toc">
+      <h3>Содержание</h3>
+      <div class="toc-item"><span>А. С. Пушкин</span><span>Евгений Онегин, Капитанская дочка</span></div>
+      <div class="toc-item"><span>М. Ю. Лермонтов</span><span>Герой нашего времени</span></div>
+      <div class="toc-item"><span>Н. В. Гоголь</span><span>Мёртвые души, Ревизор</span></div>
+      <div class="toc-item"><span>И. С. Тургенев</span><span>Отцы и дети</span></div>
+      <div class="toc-item"><span>Л. Н. Толстой</span><span>Война и мир, Анна Каренина</span></div>
+      <div class="toc-item"><span>Ф. М. Достоевский</span><span>Преступление и наказание</span></div>
+      <div class="toc-item"><span>А. П. Чехов</span><span>Вишнёвый сад и др.</span></div>
+      <div class="toc-item"><span>А. А. Блок, Маяковский...</span><span>XX век</span></div>
+    </div>
+
+    <button class="btn-open" onclick="openBook()">Открыть учебник</button>
+  </div>
+
+  <div class="progress-line">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <div class="cover-footer">
+    <span>LitTextbook</span>
+    <span id="progress-label">Прогресс: 0%</span>
+  </div>
+</div>
+
+<script>
+const PAGES_KEY = 'lit_cur_page';
+const PROGRESS_KEY = 'lit_progress';
+
+// Count progress
+const progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+const done = Object.keys(progress).length;
+// rough total tasks estimate
+const total = 75;
+const pct = Math.min(100, Math.round(done / total * 100));
+document.getElementById('progress-fill').style.width = pct + '%';
+document.getElementById('progress-label').textContent = `Прогресс: ${pct}%`;
+
+function openBook() {
+  const lastPage = localStorage.getItem(PAGES_KEY) || '0';
+  window.location.href = `reader.html?page=${lastPage}`;
+}
+</script>
+</body>
+</html>

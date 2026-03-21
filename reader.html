@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1c1208">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>LitTextbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper:  #f2e8d5;
+  --paper2: #e8d9bc;
+  --paper3: #ddc9a3;
+  --ink:    #1c1208;
+  --ink2:   #3d2b10;
+  --gold:   #a67c3a;
+  --gold2:  #c9973f;
+  --red:    #7a1f1f;
+  --muted:  #7a6245;
+  --shadow: rgba(28,18,8,.22);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+
+body {
+  background:#2a1a08;
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:18px;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  background:#1c1208;
+  color:var(--paper2);
+  padding:.55rem 1.2rem;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0;
+  border-bottom:1px solid rgba(166,124,58,.25);
+  gap:.5rem;
+}
+.back-btn {
+  background:none; border:1px solid rgba(166,124,58,.35);
+  color:var(--paper2); padding:.3rem .75rem;
+  font-family:'EB Garamond',serif; font-size:.82rem;
+  cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.back-btn:hover { border-color:var(--gold2); color:var(--gold2); }
+
+.topbar-center {
+  flex:1; text-align:center; min-width:0;
+}
+.topbar-title {
+  font-family:'Playfair Display',serif;
+  font-style:italic; font-size:.9rem;
+  white-space:nowrap; overflow:hidden;
+  text-overflow:ellipsis;
+}
+.topbar-sub {
+  font-size:.68rem; color:var(--muted);
+  letter-spacing:.08em;
+}
+
+.page-counter {
+  font-size:.75rem; color:var(--muted);
+  white-space:nowrap; font-family:monospace;
+}
+
+/* ── PROGRESS BAR ── */
+.reading-progress {
+  height:2px; background:rgba(166,124,58,.2);
+  flex-shrink:0;
+}
+.reading-progress-fill {
+  height:100%; background:var(--gold);
+  transition:width .4s ease;
+}
+
+/* ── BOOK AREA ── */
+.book-area {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  overflow:hidden;
+  background:#2a1a08;
+}
+
+/* ── PAGE ── */
+.page {
+  width:100%; max-width:720px;
+  flex:1;
+  background:var(--paper);
+  overflow-y:auto;
+  padding:2.5rem 3rem 2rem;
+  position:relative;
+  box-shadow: 4px 0 24px rgba(0,0,0,.4), -2px 0 8px rgba(0,0,0,.15);
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,.03) 0%, transparent 3%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* subtle lines */
+.page::after {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image: repeating-linear-gradient(
+    transparent, transparent 28px,
+    rgba(166,124,58,.055) 28px, rgba(166,124,58,.055) 29px
+  );
+  z-index:0;
+}
+
+.page-content { position:relative; z-index:1; }
+
+/* Flip animation */
+.page.flip-out {
+  animation:flipOut .3s ease forwards;
+}
+.page.flip-in {
+  animation:flipIn .35s ease forwards;
+}
+@keyframes flipOut {
+  0%  { opacity:1; transform:rotateY(0) translateX(0); }
+  100%{ opacity:0; transform:rotateY(-15deg) translateX(-3%); }
+}
+@keyframes flipIn {
+  0%  { opacity:0; transform:rotateY(12deg) translateX(2%); }
+  100%{ opacity:1; transform:rotateY(0) translateX(0); }
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  background: var(--paper);
+  border-top:1px solid rgba(166,124,58,.2);
+  padding:.75rem 2rem;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0;
+  box-shadow:0 -2px 12px var(--shadow);
+  z-index:10;
+  max-width:720px;
+  width:100%;
+  margin:0 auto;
+}
+.nav-btn {
+  background:none;
+  border:1px solid rgba(166,124,58,.35);
+  color:var(--muted);
+  padding:.45rem 1.1rem;
+  font-family:'Playfair Display',serif;
+  font-size:.88rem; cursor:pointer;
+  transition:all .2s;
+}
+.nav-btn:hover:not(:disabled) { border-color:var(--gold); color:var(--gold); }
+.nav-btn:disabled { opacity:.2; cursor:not-allowed; }
+
+/* page corner fold */
+.corner-fold {
+  position:absolute; bottom:0; right:0;
+  width:0; height:0;
+  border-style:solid;
+  border-width:0 0 40px 40px;
+  border-color:transparent transparent var(--paper3) transparent;
+  cursor:pointer; z-index:20;
+  transition:border-width .15s;
+}
+.corner-fold:hover { border-width:0 0 52px 52px; }
+
+/* ── PAGE TYPES ── */
+
+/* Author divider */
+.author-divider {
+  text-align:center; padding:3rem 1rem;
+}
+.author-portrait-big { font-size:3.5rem; margin-bottom:1rem; }
+.author-divider h1 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,5vw,2.8rem);
+  font-weight:900; margin-bottom:.3rem;
+}
+.author-divider .years {
+  font-size:.8rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--muted);
+  margin-bottom:1.2rem;
+}
+.author-bio {
+  font-size:.95rem; color:var(--ink2);
+  line-height:1.75; max-width:500px;
+  margin:0 auto; font-style:italic;
+}
+
+/* Work header */
+.work-header { margin-bottom:2rem; }
+.work-header h2 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.5rem,4vw,2.2rem);
+  font-weight:700; line-height:1.15;
+  margin-bottom:.3rem;
+}
+.work-type {
+  font-size:.78rem; letter-spacing:.15em;
+  text-transform:uppercase; color:var(--muted);
+}
+.work-epigraph {
+  font-style:italic; font-size:.88rem;
+  color:var(--muted); margin:1.2rem 0;
+  padding:.6rem 1.2rem;
+  border-left:2px solid var(--gold);
+  line-height:1.65;
+  background:rgba(166,124,58,.04);
+}
+
+/* Content page */
+.chapter-label {
+  font-size:.72rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--gold);
+  margin-bottom:.4rem;
+}
+.chapter-title {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.2rem,3.5vw,1.7rem);
+  font-weight:700; margin-bottom:.2rem;
+}
+.chapter-sub {
+  font-style:italic; color:var(--muted);
+  font-size:.88rem; margin-bottom:1.2rem;
+}
+
+.prose p {
+  margin-bottom:1.1rem;
+  text-align:justify; hyphens:auto;
+  line-height:1.8;
+}
+.prose p:first-of-type::first-letter {
+  font-family:'Playfair Display',serif;
+  font-size:3.4em; font-weight:700;
+  float:left; line-height:.82;
+  margin-right:.07em; color:var(--gold);
+}
+
+.pull-quote {
+  font-family:'Playfair Display',serif;
+  font-style:italic; font-size:1.05rem;
+  text-align:center; color:var(--ink2);
+  margin:1.5rem 1.5rem;
+  line-height:1.6; white-space:pre-line;
+}
+.pull-quote::before { content:'\201C'; color:var(--gold); }
+.pull-quote::after  { content:'\201D'; color:var(--gold); }
+
+.ornament {
+  text-align:center; color:var(--gold);
+  letter-spacing:.4em; margin:1.2rem 0;
+  opacity:.65; font-size:.88rem;
+}
+
+/* Tasks page */
+.tasks-page-header { margin-bottom:1.5rem; }
+.tasks-page-header h2 {
+  font-family:'Playfair Display',serif;
+  font-size:1.35rem; margin-bottom:.2rem;
+}
+.tasks-page-header p {
+  font-size:.82rem; color:var(--muted); font-style:italic;
+}
+
+.task-card {
+  background:white;
+  border:1px solid rgba(166,124,58,.22);
+  margin-bottom:1.1rem;
+  box-shadow:0 2px 8px var(--shadow);
+}
+.task-head {
+  background:var(--ink); color:var(--paper);
+  padding:.65rem 1.1rem;
+  display:flex; align-items:center; gap:.7rem;
+}
+.task-icon { font-size:1.1rem; min-width:1.4rem; }
+.task-head h3 { font-size:.9rem; font-weight:400; }
+.task-head small { display:block; opacity:.5; font-size:.72rem; font-style:italic; }
+
+.saved-badge {
+  display:inline-block; background:rgba(166,124,58,.2);
+  color:var(--gold2); font-size:.65rem;
+  padding:.1rem .4rem; margin-left:.4rem;
+}
+
+.task-body { padding:1rem 1.1rem .6rem; }
+.task-prompt {
+  font-style:italic; color:var(--muted);
+  font-size:.85rem; margin-bottom:.7rem; line-height:1.6;
+}
+.task-ta {
+  width:100%; min-height:100px;
+  padding:.65rem .9rem;
+  border:1px solid var(--paper3);
+  font-family:'EB Garamond',serif; font-size:.95rem;
+  line-height:1.6; resize:vertical;
+  background:var(--paper); color:var(--ink);
+  outline:none; transition:border .2s;
+}
+.task-ta:focus { border-color:var(--gold); }
+
+.task-foot {
+  padding:.5rem 1.1rem 1rem;
+  display:flex; gap:.5rem;
+}
+.btn-check {
+  padding:.45rem 1.1rem;
+  background:var(--red); color:var(--paper);
+  border:none; font-family:'Playfair Display',serif;
+  font-size:.85rem; cursor:pointer; transition:all .2s;
+}
+.btn-check:hover { background:#922424; }
+.btn-check:disabled { opacity:.4; cursor:not-allowed; }
+.btn-clr {
+  padding:.45rem .85rem;
+  background:none; border:1px solid var(--paper3);
+  color:var(--muted); font-family:'EB Garamond',serif;
+  font-size:.8rem; cursor:pointer; transition:all .2s;
+}
+.btn-clr:hover { border-color:var(--muted); }
+
+.ai-fb {
+  margin:0 1.1rem 1rem;
+  padding:.9rem 1.1rem;
+  background:rgba(166,124,58,.05);
+  border:1px solid rgba(166,124,58,.18);
+  display:none;
+}
+.ai-fb.show { display:block; animation:fbIn .35s ease; }
+@keyframes fbIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+
+.ai-fb-head {
+  font-size:.68rem; text-transform:uppercase;
+  letter-spacing:.15em; color:var(--gold);
+  margin-bottom:.45rem;
+}
+.ai-fb-text { font-size:.86rem; line-height:1.65; }
+
+.dots span { animation:blink 1.2s infinite; display:inline-block; }
+.dots span:nth-child(2){animation-delay:.2s}
+.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:1.5rem; left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--ink); color:var(--paper);
+  padding:.5rem 1.2rem; font-size:.8rem;
+  transition:transform .3s; z-index:999;
+  white-space:nowrap; pointer-events:none;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+@media(max-width:600px){
+  .page{padding:1.5rem 1.2rem 5rem;}
+  .bottom-nav{padding:1.5rem 1.2rem .8rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="back-btn" onclick="window.location.href='index.html'">← Обложка</button>
+  <div class="topbar-center">
+    <div class="topbar-title" id="topbar-title">LitTextbook</div>
+    <div class="topbar-sub" id="topbar-sub">Русская литература</div>
+  </div>
+  <div class="page-counter" id="page-counter">1 / 1</div>
+</div>
+
+<div class="reading-progress">
+  <div class="reading-progress-fill" id="reading-progress-fill"></div>
+</div>
+
+<div class="book-area">
+  <div class="page" id="page">
+    <div class="page-content" id="page-content"></div>
+  </div>
+  <div class="bottom-nav">
+    <button class="nav-btn" id="btn-prev" onclick="prevPage()">← Назад</button>
+    <button class="nav-btn" id="btn-next" onclick="nextPage()">Далее →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──
+const API_KEY   = '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';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const PAGES_KEY  = 'lit_cur_page';
+const PROG_KEY   = 'lit_progress';
+
+// ── BOOK DATA ──
+// All pages in reading order — loaded from data files
+// Each entry: { type, ...data }
+let BOOK = [];
+let curPage = parseInt(localStorage.getItem(PAGES_KEY) || '0');
+const progress = JSON.parse(localStorage.getItem(PROG_KEY) || '{}');
+
+// ── BUILD BOOK ──
+function buildBook() {
+  BOOK = [];
+
+  // ══ ПУШКИН ══
+  BOOK.push({
+    type:'author',
+    portrait:'✍',
+    name:'Александр Сергеевич Пушкин',
+    years:'1799 — 1837',
+    bio:'Величайший русский поэт, основоположник современного русского литературного языка. Его творчество охватывает все жанры — от лирики до романа в стихах. Пушкин прожил короткую, но невероятно насыщенную жизнь — ссылки, дуэли, любовь и нескончаемый творческий огонь.'
+  });
+
+  BOOK.push({
+    type:'work-header',
+    title:'Евгений Онегин',
+    workType:'Роман в стихах · 1823–1831',
+    epigraph:'«Проникнутый тщеславием, он обладал сверх того ещё особенной гордостью, которая побуждает признаваться с одинаковым равнодушием в своих как добрых, так и дурных поступках...» — из частного письма'
+  });
+
+  BOOK.push({
+    type:'content',
+    label:'Евгений Онегин · Глава I',
+    title:'Онегин и его мир',
+    subtitle:'Петербург, 1819 год',
+    paragraphs:[
+      'Евгений Онегин — молодой петербургский аристократ, воспитанный французскими гувернёрами. Он блестяще образован, остроумен, светски обходителен — но глубоко опустошён. С юных лет он вращается в высшем обществе: балы, театры, рестораны сменяют друг друга в бесконечном хороводе.',
+      'Онегин страдает от хандры — той особой русской скуки, которая не лечится развлечениями. Он прочёл множество книг, но знание не принесло ему счастья. Всё давалось ему легко, а потому ничто не имело цены.',
+      'Получив известие о болезни дяди, Онегин отправляется в деревню — без радости, из одной лишь скуки и долга. Деревня ненадолго занимает его: он осматривает хозяйство, вводит новые порядки. Соседи-помещики кажутся ему скучными и ограниченными.',
+      'Здесь он знакомится с молодым поэтом Владимиром Ленским — пылким романтиком, только вернувшимся из Германии с головой, полной Шиллера и Канта. Они непохожи во всём, но именно это делает их дружбу возможной — «от делать нечего друзья».'
+    ],
+    quote:'«Онегин был, по мненью многих,\nучёный малый, но педант»'
+  });
+
+  BOOK.push({
+    type:'tasks',
+    workTitle:'Евгений Онегин',
+    chapterTitle:'Глава I — Онегин и его мир',
+    tasks:[
+      { id:'eo-1-1', icon:'⚖️', title:'Точка выбора', desc:'Что если бы герой решил иначе?', prompt:'Онегин получает известие о болезни дяди и едет в деревню. Представьте: он решил не ехать и остался в Петербурге. Как изменилась бы его судьба — опираясь строго на его характер, описанный в главе?' },
+      { id:'eo-1-2', icon:'⚔️', title:'Адвокат и прокурор', desc:'Суд над персонажем', prompt:'Суд над Онегиным: его обвиняют в том, что он сознательно уклоняется от жизни и человеческих связей. Выберите сторону — защиту или обвинение — и постройте речь, используя только конкретные события и детали из главы. Укажите в начале: «Я — защитник» или «Я — обвинитель».' },
+      { id:'eo-1-3', icon:'👁️', title:'Немой свидетель', desc:'Взгляд предмета или второстепенного лица', prompt:'Напишите от лица рабочего стола Онегина в петербургской квартире. Этот стол «видел», как хозяин собирается и уезжает в деревню. Что он наблюдал? Опирайтесь на детали из текста.' },
+      { id:'eo-1-4', icon:'🕳️', title:'Пропущенная сцена', desc:'Восстановите то, что осталось за кадром', prompt:'До: Онегин получил известие о болезни дяди. После: он уже в деревне, дядя умер. Что происходило в дороге? Как он думал, что чувствовал? Опирайтесь на его характер из главы.' },
+      { id:'eo-1-5', icon:'🕯️', title:'Последнее слово', desc:'Финальный монолог героя', prompt:'Напишите внутренний монолог Онегина. Поздний вечер, первые дни в деревне, он один. Монолог должен отражать весь его путь через главу — не пересказ, а осмысление.' }
+    ]
+  });
+
+  BOOK.push({
+    type:'content',
+    label:'Евгений Онегин · Глава II',
+    title:'Ленский и Татьяна',
+    subtitle:'Деревня Лариных',
+    paragraphs:[
+      'Ленский влюблён в Ольгу Ларину — младшую дочь соседей. Ольга румяна, весела, беззаботна — воплощение простой красоты, которую так любят воспевать начинающие поэты. Ленский посвящает ей стихи и видит в ней идеал.',
+      'Но у Лариных есть и старшая дочь — Татьяна. Она совсем иная: молчаливая, задумчивая, не умеющая кокетничать. Среди деревенских шумных забав Татьяна всегда немного в стороне — с книгой или у окна, глядя в поля.',
+      'Ленский везёт Онегина к Лариным — познакомиться. Онегин смотрит на сестёр трезвым взглядом: Ольга кажется обыкновенной, а Татьяна — интересной, хотя он и не отдаёт себе в этом отчёта.',
+      'Так завязываются судьбы четырёх людей, которым ещё предстоит пройти через любовь, отказ, дуэль и разлуку.'
+    ],
+    quote:'«Она в семье своей родной\nказалась девочкой чужой»'
+  });
+
+  BOOK.push({
+    type:'tasks',
+    workTitle:'Евгений Онегин',
+    chapterTitle:'Глава II — Ленский и Татьяна',
+    tasks:[
+      { id:'eo-2-1', icon:'⚖️', title:'Точка выбора', desc:'Что если бы герой решил иначе?', prompt:'Ленский везёт Онегина к Лариным. Представьте: Онегин отказался ехать. Как изменились бы судьбы всех четырёх героев — опираясь на характеры из главы?' },
+      { id:'eo-2-2', icon:'⚔️', title:'Адвокат и прокурор', desc:'Суд над персонажем', prompt:'Суд над Ленским: его обвиняют в том, что он любит не настоящую Ольгу, а придуманный образ. Выберите сторону и постройте речь только на деталях из главы. Укажите: «Я — защитник» или «Я — обвинитель».' },
+      { id:'eo-2-3', icon:'👁️', title:'Немой свидетель', desc:'Взгляд предмета', prompt:'Напишите от лица старого альбома Ольги, в который Ленский вписывает стихи. Что этот альбом «видел»? Опирайтесь на детали из главы.' },
+      { id:'eo-2-4', icon:'🕳️', title:'Пропущенная сцена', desc:'Восстановите то, что за кадром', prompt:'До: Онегин и Ленский познакомились. После: они уже близкие приятели. Как развивалась их дружба? Что думал каждый о другом — исходя из характеров из главы?' },
+      { id:'eo-2-5', icon:'🕯️', title:'Последнее слово', desc:'Финальный монолог героя', prompt:'Напишите внутренний монолог Ленского, когда он возвращается домой после вечера у Лариных. Монолог должен отражать его характер и чувства, описанные в главе.' }
+    ]
+  });
+
+  BOOK.push({
+    type:'content',
+    label:'Евгений Онегин · Глава III',
+    title:'Письмо Татьяны',
+    subtitle:'Признание и ответ',
+    paragraphs:[
+      'Татьяна влюбилась — внезапно и полно, как бывает только в первый раз. Онегин непохож на всех, кого она знала: загадочен, умён, явно несчастлив. В её воображении он сразу занял место героя романа.',
+      'Ночами она не спит. Письмо Татьяны — один из самых известных текстов русской литературы. Она признаётся в любви первой, нарушая все приличия света. Она знает это — и всё равно пишет. Потому что молчать уже невозможно.',
+      'Онегин получает письмо. Он тронут — искренне, без иронии. И именно поэтому отвечает честно: он не создан для семейного счастья, не хочет обманывать её. Его объяснение в саду — попытка уберечь Татьяну от него самого.',
+      'Татьяна слушает. Она не плачет, не упрекает. Она будет любить его ещё долго — молча, втайне, сквозь годы. Этот урок жизни она запомнит навсегда.'
+    ],
+    quote:'«Я к вам пишу — чего же боле?\nЧто я могу ещё сказать?»'
+  });
+
+  BOOK.push({
+    type:'tasks',
+    workTitle:'Евгений Онегин',
+    chapterTitle:'Глава III — Письмо Татьяны',
+    tasks:[
+      { id:'eo-3-1', icon:'⚖️', title:'Точка выбора', desc:'Что если бы герой решил иначе?', prompt:'Татьяна решает написать письмо. Представьте: она промолчала. Как изменилась бы её судьба — опираясь строго на её характер из глав?' },
+      { id:'eo-3-2', icon:'⚔️', title:'Адвокат и прокурор', desc:'Суд над персонажем', prompt:'Суд над Онегиным: его обвиняют в том, что своим отказом он сломал жизнь Татьяны. Выберите сторону и постройте речь только на событиях из текста. Укажите: «Я — защитник» или «Я — обвинитель».' },
+      { id:'eo-3-3', icon:'👁️', title:'Немой свидетель', desc:'Взгляд предмета', prompt:'Напишите от лица скамейки в саду, на которой Онегин объясняется с Татьяной. Что она «видела»? Опирайтесь на детали сцены.' },
+      { id:'eo-3-4', icon:'🕳️', title:'Пропущенная сцена', desc:'Восстановите то, что за кадром', prompt:'До: Татьяна отправила письмо. После: Онегин его читает. Как письмо дошло до Онегина? Что чувствовала Татьяна в ожидании?' },
+      { id:'eo-3-5', icon:'🕯️', title:'Последнее слово', desc:'Финальный монолог героя', prompt:'Напишите внутренний монолог Татьяны. Ночь после разговора с Онегиным в саду. Монолог должен отражать весь её путь через главу — не пересказ, а осмысление.' }
+    ]
+  });
+
+  // ══ ЛЕРМОНТОВ ══
+  BOOK.push({
+    type:'author',
+    portrait:'⚔️',
+    name:'Михаил Юрьевич Лермонтов',
+    years:'1814 — 1841',
+    bio:'Поэт и прозаик, создавший образ «лишнего человека» в русской литературе. Гений, сгоревший в 26 лет. Его Печорин стал зеркалом целого поколения — умных, разочарованных, не находящих себе применения людей.'
+  });
+
+  BOOK.push({
+    type:'work-header',
+    title:'Герой нашего времени',
+    workType:'Роман · 1840',
+    epigraph:'«Герой нашего времени, милостивые государи мои, точно портрет, но не одного человека: это портрет, составленный из пороков всего нашего поколения, в полном их развитии»'
+  });
+
+  BOOK.push({
+    type:'content',
+    label:'Герой нашего времени · Часть I',
+    title:'Печорин: портрет поколения',
+    subtitle:'Кавказ, 1830-е годы',
+    paragraphs:[
+      'Григорий Александрович Печорин — офицер, умный и беспощадный к себе и другим. Он анализирует собственные поступки с хирургической точностью, но это знание не делает его лучше — оно лишь делает его более одиноким.',
+      'Роман состоит из нескольких повестей, рассказанных разными людьми. Сначала мы видим Печорина глазами странствующего офицера-рассказчика и старого Максима Максимыча — человека простого, искренне привязанного к Печорину, который отвечает ему холодным равнодушием.',
+      'В «Тамани» Печорин из любопытства вмешивается в жизнь контрабандистов — и разрушает её, не задумываясь о последствиях. В «Княжне Мери» он методично завоёвывает сердце девушки — без любви, из скуки и самолюбия. Он сам называет это «необходимым занятием».',
+      'Центральный вопрос романа — почему умный, образованный человек тратит свою жизнь на мелкие интриги и причиняет боль всем вокруг? Лермонтов не даёт ответа. Он лишь ставит диагноз эпохе.'
+    ],
+    quote:'«Я давно уже живу не сердцем, а головою»'
+  });
+
+  BOOK.push({
+    type:'tasks',
+    workTitle:'Герой нашего времени',
+    chapterTitle:'Печорин: портрет поколения',
+    tasks:[
+      { id:'gn-1-1', icon:'⚖️', title:'Точка выбора', desc:'Что если бы герой решил иначе?', prompt:'В «Тамани» Печорин решает следить за контрабандистами и вмешаться в их жизнь. Представьте: он прошёл мимо. Как изменилась бы его история — опираясь на его характер, описанный в романе?' },
+      { id:'gn-1-2', icon:'⚔️', title:'Адвокат и прокурор', desc:'Суд над персонажем', prompt:'Суд над Печориным: его обвиняют в намеренном причинении боли людям ради собственного развлечения. Выберите сторону и постройте речь только на событиях и деталях из текста. Укажите: «Я — защитник» или «Я — обвинитель».' },
+      { id:'gn-1-3', icon:'👁️', title:'Немой свидетель', desc:'Взгляд предмета', prompt:'Напишите от лица дневника Печорина. Он «видел» все его мысли и поступки. Как дневник «воспринимает» своего хозяина? Опирайтесь на детали из текста.' },
+      { id:'gn-1-4', icon:'🕳️', title:'Пропущенная сцена', desc:'Восстановите то, что за кадром', prompt:'До: Максим Максимыч с нетерпением ждёт встречи с Печориным после долгой разлуки. После: Печорин холодно прощается и уезжает. Что думал Печорин во время этой встречи? Опирайтесь на его характер из романа.' },
+      { id:'gn-1-5', icon:'🕯️', title:'Последнее слово', desc:'Финальный монолог героя', prompt:'Напишите финальный внутренний монолог Печорина — его последние мысли, исходя из всего, что мы узнали о нём в романе. Не пересказ — осмысление.' }
+    ]
+  });
+}
+
+// ── RENDER ──
+function renderPage(idx) {
+  const p = BOOK[idx];
+  if (!p) return;
+
+  let html = '';
+
+  if (p.type === 'author') {
+    html = `
+      <div class="author-divider">
+        <div class="author-portrait-big">${p.portrait}</div>
+        <div class="ornament">✦ &nbsp; ✦ &nbsp; ✦</div>
+        <h1>${p.name}</h1>
+        <div class="years">${p.years}</div>
+        <p class="author-bio">${p.bio}</p>
+        <div class="ornament" style="margin-top:1.5rem">— ✦ —</div>
+      </div>`;
+    document.getElementById('topbar-title').textContent = p.name;
+    document.getElementById('topbar-sub').textContent = p.years;
+  }
+
+  else if (p.type === 'work-header') {
+    html = `
+      <div style="padding:2rem 0 1rem">
+        <div class="work-header">
+          <h2>${p.title}</h2>
+          <div class="work-type">${p.workType}</div>
+        </div>
+        ${p.epigraph ? `<div class="work-epigraph">${p.epigraph}</div>` : ''}
+        <div class="ornament">— ✦ —</div>
+        <p style="font-size:.85rem;color:var(--muted);font-style:italic;text-align:center">
+          Перейдите на следующую страницу, чтобы начать чтение
+        </p>
+      </div>`;
+    document.getElementById('topbar-title').textContent = p.title;
+    document.getElementById('topbar-sub').textContent = p.workType;
+  }
+
+  else if (p.type === 'content') {
+    const paras = p.paragraphs.map((t,i) =>
+      `<p${i===0?' class="first-p"':''}>${t}</p>`
+    ).join('');
+    html = `
+      <div class="chapter-label">${p.label}</div>
+      <div class="chapter-title">${p.title}</div>
+      <div class="chapter-sub">${p.subtitle}</div>
+      <div class="ornament">— ✦ —</div>
+      <div class="prose">${paras}</div>
+      ${p.quote ? `<div class="pull-quote">${p.quote}</div>` : ''}
+      <div class="ornament">✦ &nbsp; ✦ &nbsp; ✦</div>`;
+    document.getElementById('topbar-title').textContent = p.title;
+    document.getElementById('topbar-sub').textContent = p.label;
+  }
+
+  else if (p.type === 'tasks') {
+    const doneCount = p.tasks.filter(t => progress[t.id]).length;
+    let cards = '';
+    p.tasks.forEach((t, i) => {
+      const saved = progress[t.id] || '';
+      cards += `
+        <div class="task-card" id="tc-${t.id}">
+          <div class="task-head">
+            <span class="task-icon">${t.icon}</span>
+            <div>
+              <h3>${i+1}. ${t.title}${saved?'<span class="saved-badge">✓</span>':''}</h3>
+              <small>${t.desc}</small>
+            </div>
+          </div>
+          <div class="task-body">
+            <p class="task-prompt">${t.prompt}</p>
+            <textarea class="task-ta" id="ta-${t.id}" placeholder="Напишите ваш ответ...">${saved}</textarea>
+          </div>
+          <div class="task-foot">
+            <button class="btn-check" onclick="checkTask('${t.id}',${i})">Проверить ✦</button>
+            <button class="btn-clr" onclick="clearTask('${t.id}')">Очистить</button>
+          </div>
+          <div class="ai-fb" id="fb-${t.id}">
+            <div class="ai-fb-head">✦ Оценка литературного критика</div>
+            <div class="ai-fb-text" id="fbt-${t.id}"></div>
+          </div>
+        </div>`;
+    });
+    html = `
+      <div class="tasks-page-header">
+        <h2>Задания</h2>
+        <p>${p.workTitle} · ${p.chapterTitle} · выполнено ${doneCount} из ${p.tasks.length}</p>
+      </div>
+      ${cards}`;
+    document.getElementById('topbar-title').textContent = 'Задания';
+    document.getElementById('topbar-sub').textContent = p.chapterTitle;
+  }
+
+  document.getElementById('page-content').innerHTML = html;
+  document.getElementById('page').scrollTop = 0;
+
+  // Update counters
+  const total = BOOK.length;
+  document.getElementById('page-counter').textContent = `${idx+1} / ${total}`;
+  document.getElementById('reading-progress-fill').style.width = ((idx+1)/total*100) + '%';
+
+  // Nav buttons
+  document.getElementById('btn-prev').disabled = idx === 0;
+  document.getElementById('btn-next').disabled = idx === total - 1;
+
+  // Save position
+  localStorage.setItem(PAGES_KEY, idx);
+}
+
+// ── NAVIGATION ──
+function goTo(idx) {
+  if (idx < 0 || idx >= BOOK.length || idx === curPage) return;
+  const forward = idx > curPage;
+  const page = document.getElementById('page');
+
+  page.classList.add('flip-out');
+  setTimeout(() => {
+    page.classList.remove('flip-out');
+    curPage = idx;
+    renderPage(curPage);
+    page.classList.add('flip-in');
+    setTimeout(() => page.classList.remove('flip-in'), 380);
+  }, 280);
+}
+
+function nextPage() { goTo(curPage + 1); }
+function prevPage() { goTo(curPage - 1); }
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  nextPage();
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    prevPage();
+});
+
+// Swipe
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend',   e => {
+  const dx = tx - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 45) { dx > 0 ? nextPage() : prevPage(); }
+});
+
+// ── AI CHECK ──
+async function checkTask(taskId, taskIdx) {
+  const ta  = document.getElementById(`ta-${taskId}`);
+  const ans = ta ? ta.value.trim() : '';
+  if (ans.length < 30) { showToast('Напишите более развёрнутый ответ'); return; }
+
+  const btn = document.querySelector(`#tc-${taskId} .btn-check`);
+  const fb  = document.getElementById(`fb-${taskId}`);
+  const fbt = document.getElementById(`fbt-${taskId}`);
+  if (!btn || !fb || !fbt) return;
+
+  btn.disabled = true; btn.textContent = 'Проверяю...';
+  fb.classList.add('show');
+  fbt.innerHTML = '<span class="dots"><span>•</span><span>•</span><span>•</span></span>';
+
+  // Find current task prompt
+  const curP = BOOK[curPage];
+  const task = curP && curP.tasks ? curP.tasks[taskIdx] : null;
+  const taskPrompt = task ? task.prompt : 'Творческое задание по произведению русской классики';
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${API_KEY}` },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages:[
+          { role:'system', content:`Ты — преподаватель литературы в колледже. Проверяешь письменные работы первокурсников. Оцениваешь как обычный живой человек — без пафоса, без снисхождения, без страха поставить двойку или пятёрку.
+
+Обращайся к студенту просто "Студент" или никак — без капслока и без английского.
+
+Твоя шкала:
+20-40 — отписка. Общие слова, ноль конкретики, явно написано за 2 минуты или скопировано у ИИ
+41-59 — слабо. Есть попытка, но текст произведения почти не используется
+60-74 — нормально. Мысль есть, опора на текст есть, но поверхностно
+75-84 — хорошо. Конкретные детали из книги, своя позиция, внятный стиль
+85-94 — очень хорошо. Глубоко, точно, чувствуется что человек реально читал
+95-100 — блестяще. Такое бывает редко — только если работа реально сильная
+
+Ставь только круглые числа кратные 5:
+20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100
+Никаких 68, 73, 87 — только кратные 5.
+
+Признаки списывания у ИИ (снижай балл на 20+): канцелярский стиль, фразы типа "следует отметить", "таким образом", "в заключение хочется сказать", отсутствие личного голоса, слишком гладкий текст без живых мыслей.
+
+Пиши по-русски, коротко и прямо — как препод на перемене. Максимум 120 слов. Конкретно скажи что хорошо и что плохо. Заверши: Итог: [слово]. Балл: [число].` },
+          { role:'user', content:`Задание: ${taskPrompt}\n\nОтвет ученика:\n${ans}` }
+        ],
+        max_tokens:400, temperature:.65
+      })
+    });
+
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Ошибка API'); }
+    const data = await res.json();
+    fbt.innerHTML = data.choices[0].message.content.replace(/\n/g,'<br>');
+
+    progress[taskId] = ans;
+    localStorage.setItem(PROG_KEY, JSON.stringify(progress));
+    showToast('Ответ сохранён');
+    
+
+  } catch(e) {
+    fbt.innerHTML = `<span style="color:var(--red)">Ошибка: ${e.message}</span>`;
+    btn.disabled = false; btn.textContent = 'Проверить ✦';
+  }
+}
+
+function clearTask(id) {
+  const ta = document.getElementById(`ta-${id}`);
+  if (ta) ta.value = '';
+  const fb = document.getElementById(`fb-${id}`);
+  if (fb) fb.classList.remove('show');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──
+buildBook();
+if (curPage >= BOOK.length) curPage = 0;
+renderPage(curPage);
+</script>
+</body>
+</html>
