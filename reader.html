@@ -509,7 +509,7 @@ body {
 // ══════════════════════════════════════════
 //  CONFIG — замените на ваш Groq ключ
 // ══════════════════════════════════════════
-const GROQ_KEY = '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';
+const GROQ_KEY = '';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 const PAGES_KEY  = 'lit_cur_page';
 const PROG_KEY   = 'lit_progress';
@@ -1396,6 +1396,9 @@ function showToast(msg) {
 
 // init() вызывается после загрузки всех авторских скриптов
 function init() {
+  const name = localStorage.getItem('lit_user_name');
+  if (name) document.getElementById('topbar-sub').textContent = name + ' · Русская литература';
+
   progress = JSON.parse(localStorage.getItem(PROG_KEY) || '{}');
   buildBook();
   buildDropdown();
@@ -1403,6 +1406,7 @@ function init() {
   curPage = (savedPage >= 0 && savedPage < BOOK.length) ? savedPage : 0;
   renderPage(curPage);
 }
+
 </script>
 
 <!-- Подключаем данные авторов — init() вызывается последним скриптом -->

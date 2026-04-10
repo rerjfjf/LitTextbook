@@ -219,23 +219,93 @@ body {
   </div>
 </div>
 
-<script>
-const PAGES_KEY = 'lit_cur_page';
-const PROGRESS_KEY = 'lit_progress';
 
-// Count progress
-const progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
-const done = Object.keys(progress).length;
-// rough total tasks estimate
-const total = 75;
-const pct = Math.min(100, Math.round(done / total * 100));
-document.getElementById('progress-fill').style.width = pct + '%';
-document.getElementById('progress-label').textContent = `Прогресс: ${pct}%`;
+
+<!-- ЭКРАН РЕГИСТРАЦИИ -->
+<div id="reg-screen" style="display:none; max-width:420px; width:100%;">
+  <div class="book-cover">
+    <div class="cover-inner">
+      <div class="cover-label">Первый вход</div>
+      <div class="cover-title"><em>Добро пожаловать</em>LitTextbook</div>
+      <div class="ornament">— ✦ —</div>
+      <div id="reg-error" style="display:none; color:#7a1f1f; font-size:.8rem; margin-bottom:.8rem; padding:.5rem; border:1px solid rgba(122,31,31,.3);"></div>
+      <div style="margin-bottom:1rem;">
+        <div class="cover-label" style="text-align:left; margin-bottom:.4rem;">Ваше имя</div>
+        <input id="reg-name" type="text" placeholder="Александр..." style="width:100%; padding:.6rem .85rem; border:1px solid var(--paper3); background:var(--paper); font-family:'EB Garamond',serif; font-size:.95rem; outline:none;">
+      </div>
+      <div style="margin-bottom:1.2rem;">
+        <div class="cover-label" style="text-align:left; margin-bottom:.4rem;">Groq API ключ</div>
+        <input id="reg-key" type="password" placeholder="gsk_..." style="width:100%; padding:.6rem .85rem; border:1px solid var(--paper3); background:var(--paper); font-family:'EB Garamond',serif; font-size:.95rem; outline:none;">
+        <div style="font-size:.75rem; color:var(--muted); margin-top:.3rem; font-style:italic;">
+          Получите бесплатно на <a href="https://console.groq.com" target="_blank" style="color:var(--gold);">console.groq.com</a>
+        </div>
+      </div>
+      <button class="btn-open" onclick="register()">Войти в учебник</button>
+    </div>
+  </div>
+</div>
+
+<!-- ОБЛОЖКА (после входа) -->
+<div id="cover-screen" style="display:none;" class="book-cover">
+  <!-- ... весь твой текущий cover-inner ... -->
+  <!-- добавь в cover-footer: -->
+  <span id="welcome-name" style="color:var(--gold);"></span>
+  <button onclick="logout()" style="background:none; border:none; color:var(--muted); font-size:.72rem; cursor:pointer; font-family:'EB Garamond',serif;">Сменить пользователя</button>
+</div>
+
+<script>
+const PAGES_KEY    = 'lit_cur_page';
+const PROGRESS_KEY = 'lit_progress';
+const USER_NAME    = 'lit_user_name';
+const GROQ_KEY_LS  = 'lit_groq_key';
+
+function init() {
+  const name = localStorage.getItem(USER_NAME);
+  const key  = localStorage.getItem(GROQ_KEY_LS);
+
+  const progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+  const pct = Math.min(100, Math.round(Object.keys(progress).length / 75 * 100));
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Прогресс: ${pct}%`;
+
+  if (name && key) {
+    // Уже зарегистрирован — показать обложку
+    document.getElementById('reg-screen').style.display  = 'none';
+    document.getElementById('cover-screen').style.display = 'block';
+    document.getElementById('welcome-name').textContent = name;
+  } else {
+    // Показать регистрацию
+    document.getElementById('reg-screen').style.display  = 'block';
+    document.getElementById('cover-screen').style.display = 'none';
+  }
+}
+
+function register() {
+  const name = document.getElementById('reg-name').value.trim();
+  const key  = document.getElementById('reg-key').value.trim();
+  const err  = document.getElementById('reg-error');
+
+  if (!name) { err.textContent = 'Введите имя'; err.style.display='block'; return; }
+  if (!key.startsWith('gsk_') || key.length < 20) {
+    err.textContent = 'Ключ должен начинаться с gsk_'; err.style.display='block'; return;
+  }
+
+  localStorage.setItem(USER_NAME, name);
+  localStorage.setItem(GROQ_KEY_LS, key);
+  init();
+}
 
 function openBook() {
-  const lastPage = localStorage.getItem(PAGES_KEY) || '0';
-  window.location.href = `reader.html?page=${lastPage}`;
+  window.location.href = 'reader.html';
 }
+
+function logout() {
+  localStorage.removeItem(USER_NAME);
+  localStorage.removeItem(GROQ_KEY_LS);
+  init();
+}
+
+init();
 </script>
 </body>
 </html>
