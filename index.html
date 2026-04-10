@@ -37,28 +37,19 @@ body {
   padding: 2rem 1rem;
 }
 
-/* ── BOOK COVER ── */
 .book-cover {
   background: var(--paper);
   max-width: 520px;
   width: 100%;
   position: relative;
-  box-shadow:
-    6px 6px 0 #1a0d04,
-    8px 8px 20px rgba(0,0,0,.5);
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  box-shadow: 6px 6px 0 #1a0d04, 8px 8px 20px rgba(0,0,0,.5);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
 }
-
-/* Book spine shadow on left */
 .book-cover::before {
   content:'';
-  position:absolute;
-  top:0; left:0; bottom:0;
-  width:18px;
+  position:absolute; top:0; left:0; bottom:0; width:18px;
   background: linear-gradient(to right, rgba(0,0,0,.18), transparent);
-  pointer-events:none;
-  z-index:1;
+  pointer-events:none; z-index:1;
 }
 
 .cover-inner {
@@ -68,118 +59,109 @@ body {
   text-align: center;
   position: relative;
 }
-
 .cover-inner::before { content:'✦'; position:absolute; top:.5rem; left:.5rem; color:var(--gold); font-size:1rem; }
 .cover-inner::after  { content:'✦'; position:absolute; bottom:.5rem; right:.5rem; color:var(--gold); font-size:1rem; }
 
 .cover-label {
   font-size:.72rem; letter-spacing:.25em;
-  text-transform:uppercase; color:var(--muted);
-  margin-bottom:1.2rem;
+  text-transform:uppercase; color:var(--muted); margin-bottom:1.2rem;
 }
-
 .cover-title {
   font-family:'Playfair Display',serif;
   font-size:clamp(2rem,7vw,3.4rem);
-  font-weight:900; line-height:1.05;
-  margin-bottom:.4rem;
+  font-weight:900; line-height:1.05; margin-bottom:.4rem;
 }
-
 .cover-title em {
   font-style:italic; color:var(--gold);
-  display:block; font-size:.65em;
-  font-weight:400; margin-bottom:.2rem;
+  display:block; font-size:.65em; font-weight:400; margin-bottom:.2rem;
 }
+.cover-subtitle { font-style:italic; color:var(--muted); font-size:.95rem; margin-bottom:.3rem; }
+.ornament { color:var(--gold); letter-spacing:.4em; font-size:.9rem; margin:1.2rem 0; opacity:.7; }
+.cover-desc { font-size:.88rem; color:var(--ink2); line-height:1.7; margin-bottom:1.5rem; font-style:italic; }
 
-.cover-subtitle {
-  font-style:italic; color:var(--muted);
-  font-size:.95rem; margin-bottom:.3rem;
-}
-
-.ornament {
-  color:var(--gold); letter-spacing:.4em;
-  font-size:.9rem; margin:1.2rem 0; opacity:.7;
-}
-
-.cover-desc {
-  font-size:.88rem; color:var(--ink2);
-  line-height:1.7; margin-bottom:1.5rem;
-  font-style:italic;
-}
-
-.cover-toc {
-  text-align:left; margin-bottom:1.8rem;
-  border-top:1px solid rgba(166,124,58,.25);
-  padding-top:1rem;
-}
-
-.cover-toc h3 {
-  font-family:'Playfair Display',serif;
-  font-size:.8rem; letter-spacing:.15em;
-  text-transform:uppercase; color:var(--muted);
-  margin-bottom:.7rem;
-}
-
-.toc-item {
-  display:flex; justify-content:space-between;
-  align-items:baseline;
-  padding:.25rem 0;
-  border-bottom:1px dotted rgba(166,124,58,.2);
-  font-size:.85rem;
-}
+.cover-toc { text-align:left; margin-bottom:1.8rem; border-top:1px solid rgba(166,124,58,.25); padding-top:1rem; }
+.cover-toc h3 { font-family:'Playfair Display',serif; font-size:.8rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); margin-bottom:.7rem; }
+.toc-item { display:flex; justify-content:space-between; align-items:baseline; padding:.25rem 0; border-bottom:1px dotted rgba(166,124,58,.2); font-size:.85rem; }
 .toc-item span:first-child { color:var(--ink2); }
 .toc-item span:last-child  { color:var(--muted); font-style:italic; font-size:.78rem; }
 
 .btn-open {
   width:100%; padding:1rem;
-  background:var(--ink);
-  color:var(--paper);
-  border:none;
-  font-family:'Playfair Display',serif;
+  background:var(--ink); color:var(--paper);
+  border:none; font-family:'Playfair Display',serif;
   font-size:1.05rem; letter-spacing:.06em;
-  cursor:pointer;
-  transition:all .2s;
+  cursor:pointer; transition:all .2s;
   position:relative; overflow:hidden;
 }
-.btn-open::after {
-  content:'→';
-  position:absolute; right:1.5rem; top:50%;
-  transform:translateY(-50%);
-  transition:right .2s;
-}
+.btn-open::after { content:'→'; position:absolute; right:1.5rem; top:50%; transform:translateY(-50%); transition:right .2s; }
 .btn-open:hover { background:var(--ink2); }
 .btn-open:hover::after { right:1.2rem; }
 
 .cover-footer {
   padding:.75rem 1.8rem;
   border-top:1px solid rgba(166,124,58,.2);
-  display:flex; justify-content:space-between;
-  align-items:center;
+  display:flex; justify-content:space-between; align-items:center;
   font-size:.72rem; color:var(--muted);
 }
+.progress-line { height:2px; background:var(--paper3); margin:0 1.8rem; }
+.progress-fill { height:100%; background:var(--gold); transition:width .5s ease; }
 
-/* Progress bar */
-.progress-line {
-  height:2px;
-  background:var(--paper3);
-  margin:0 1.8rem;
+/* Поля регистрации */
+.reg-field { margin-bottom:1rem; text-align:left; }
+.reg-field-label { font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:.35rem; }
+.reg-input {
+  width:100%; padding:.6rem .85rem;
+  border:1px solid var(--paper3); background:#fdf7ee;
+  font-family:'EB Garamond',serif; font-size:.95rem; color:var(--ink);
+  outline:none; transition:border .2s;
 }
-.progress-fill {
-  height:100%;
-  background:var(--gold);
-  transition:width .5s ease;
+.reg-input:focus { border-color:var(--gold); }
+.reg-hint { font-size:.75rem; color:var(--muted); margin-top:.3rem; font-style:italic; }
+.reg-hint a { color:var(--gold); text-decoration:none; }
+.reg-error {
+  display:none; color:var(--red); font-size:.8rem;
+  margin-bottom:.8rem; padding:.5rem .75rem;
+  border:1px solid rgba(122,31,31,.3);
+  background:rgba(122,31,31,.05);
 }
 
-@keyframes fadeUp {
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
-}
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 .book-cover { animation:fadeUp .6s ease both; }
 </style>
 </head>
 <body>
 
-<div class="book-cover">
+<!-- ══ ЭКРАН 1: РЕГИСТРАЦИЯ ══ -->
+<div id="reg-screen" class="book-cover" style="display:none;">
+  <div class="cover-inner">
+    <div class="cover-label">Первый вход</div>
+    <div class="cover-title">
+      <em>Добро пожаловать</em>
+      LitTextbook
+    </div>
+    <div class="ornament">— ✦ —</div>
+
+    <div class="reg-error" id="reg-error"></div>
+
+    <div class="reg-field">
+      <label class="reg-field-label" for="reg-name">Ваше имя</label>
+      <input class="reg-input" id="reg-name" type="text" placeholder="Например: Александр" maxlength="40" autocomplete="off">
+    </div>
+
+    <div class="reg-field">
+      <label class="reg-field-label" for="reg-key">Groq API ключ</label>
+      <input class="reg-input" id="reg-key" type="password" placeholder="gsk_..." autocomplete="off">
+      <div class="reg-hint">
+        Получите бесплатно на <a href="https://console.groq.com" target="_blank">console.groq.com</a>
+      </div>
+    </div>
+
+    <button class="btn-open" onclick="register()">Войти в учебник</button>
+  </div>
+</div>
+
+<!-- ══ ЭКРАН 2: ОБЛОЖКА ══ -->
+<div id="cover-screen" class="book-cover" style="display:none;">
   <div class="cover-inner">
     <div class="cover-label">Учебник · 10–11 класс</div>
     <div class="cover-title">
@@ -214,44 +196,10 @@ body {
   </div>
 
   <div class="cover-footer">
-    <span>LitTextbook</span>
+    <span id="welcome-name" style="color:var(--gold);"></span>
     <span id="progress-label">Прогресс: 0%</span>
+    <button onclick="logout()" style="background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;font-family:'EB Garamond',serif;">Сменить пользователя</button>
   </div>
-</div>
-
-
-
-<!-- ЭКРАН РЕГИСТРАЦИИ -->
-<div id="reg-screen" style="display:none; max-width:420px; width:100%;">
-  <div class="book-cover">
-    <div class="cover-inner">
-      <div class="cover-label">Первый вход</div>
-      <div class="cover-title"><em>Добро пожаловать</em>LitTextbook</div>
-      <div class="ornament">— ✦ —</div>
-      <div id="reg-error" style="display:none; color:#7a1f1f; font-size:.8rem; margin-bottom:.8rem; padding:.5rem; border:1px solid rgba(122,31,31,.3);"></div>
-      <div style="margin-bottom:1rem;">
-        <div class="cover-label" style="text-align:left; margin-bottom:.4rem;">Ваше имя</div>
-        <input id="reg-name" type="text" placeholder="Александр..." style="width:100%; padding:.6rem .85rem; border:1px solid var(--paper3); background:var(--paper); font-family:'EB Garamond',serif; font-size:.95rem; outline:none;">
-      </div>
-      <div style="margin-bottom:1.2rem;">
-        <div class="cover-label" style="text-align:left; margin-bottom:.4rem;">Groq API ключ</div>
-        <input id="reg-key" type="password" placeholder="gsk_..." style="width:100%; padding:.6rem .85rem; border:1px solid var(--paper3); background:var(--paper); font-family:'EB Garamond',serif; font-size:.95rem; outline:none;">
-        <div style="font-size:.75rem; color:var(--muted); margin-top:.3rem; font-style:italic;">
-          Получите бесплатно на <a href="https://console.groq.com" target="_blank" style="color:var(--gold);">console.groq.com</a>
-        </div>
-      </div>
-      <button class="btn-open" onclick="register()">Войти в учебник</button>
-    </div>
-  </div>
-</div>
-
-<!-- ОБЛОЖКА (после входа) -->
-<div id="cover-screen" style="display:none;" class="book-cover">
-  <!-- ... весь твой текущий cover-inner ... -->
-  <!-- добавь в cover-footer: -->
-  <span id="welcome-name" style="color:var(--gold);"></span>
-  <button onclick="logout()" style="background:none; border:none; color:var(--muted); font-size:.72rem; cursor:pointer; font-family:'EB Garamond',serif;">Сменить пользователя</button>
-  <button onclick="clearAll()" style="background:none; border:none; color:var(--muted); font-size:.72rem; cursor:pointer; font-family:'EB Garamond',serif;">Сбросить прогресс</button>
 </div>
 
 <script>
@@ -264,19 +212,17 @@ function init() {
   const name = localStorage.getItem(USER_NAME);
   const key  = localStorage.getItem(GROQ_KEY_LS);
 
-  const progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
-  const pct = Math.min(100, Math.round(Object.keys(progress).length / 75 * 100));
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-label').textContent = `Прогресс: ${pct}%`;
-
   if (name && key) {
-    // Уже зарегистрирован — показать обложку
-    document.getElementById('reg-screen').style.display  = 'none';
+    document.getElementById('reg-screen').style.display   = 'none';
     document.getElementById('cover-screen').style.display = 'block';
-    document.getElementById('welcome-name').textContent = name;
+    document.getElementById('welcome-name').textContent   = name;
+
+    const progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}');
+    const pct = Math.min(100, Math.round(Object.keys(progress).length / 75 * 100));
+    document.getElementById('progress-fill').style.width  = pct + '%';
+    document.getElementById('progress-label').textContent = `Прогресс: ${pct}%`;
   } else {
-    // Показать регистрацию
-    document.getElementById('reg-screen').style.display  = 'block';
+    document.getElementById('reg-screen').style.display   = 'block';
     document.getElementById('cover-screen').style.display = 'none';
   }
 }
@@ -286,9 +232,15 @@ function register() {
   const key  = document.getElementById('reg-key').value.trim();
   const err  = document.getElementById('reg-error');
 
-  if (!name) { err.textContent = 'Введите имя'; err.style.display='block'; return; }
+  err.style.display = 'none';
+
+  if (!name) {
+    err.textContent = 'Введите ваше имя, чтобы продолжить.';
+    err.style.display = 'block'; return;
+  }
   if (!key.startsWith('gsk_') || key.length < 20) {
-    err.textContent = 'Ключ должен начинаться с gsk_'; err.style.display='block'; return;
+    err.textContent = 'Ключ должен начинаться с gsk_ и быть не короче 20 символов.';
+    err.style.display = 'block'; return;
   }
 
   localStorage.setItem(USER_NAME, name);
@@ -304,13 +256,6 @@ function logout() {
   localStorage.removeItem(USER_NAME);
   localStorage.removeItem(GROQ_KEY_LS);
   init();
-}
-
-function clearAll() {
-  if (confirm('Сбросить весь прогресс? Ответы и настройки будут удалены.')) {
-    localStorage.clear();
-    location.reload();
-  }
 }
 
 init();
