@@ -199,6 +199,7 @@ body {
     <span id="welcome-name" style="color:var(--gold);"></span>
     <span id="progress-label">Прогресс: 0%</span>
     <button onclick="logout()" style="background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;font-family:'EB Garamond',serif;">Сменить пользователя</button>
+    <button onclick="clearAll()" style="background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer;font-family:'EB Garamond',serif;">Сбросить прогресс</button>
   </div>
 </div>
 
@@ -256,6 +257,13 @@ function logout() {
   localStorage.removeItem(USER_NAME);
   localStorage.removeItem(GROQ_KEY_LS);
   init();
+}
+
+function clearAll() {
+  if (confirm('Сбросить весь прогресс? Ответы и настройки будут удалены.')) {
+    localStorage.clear();
+    location.reload();
+  }
 }
 
 init();
